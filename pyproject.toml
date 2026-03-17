@@ -1,0 +1,23 @@
+[project]
+name = "substack-to-epub"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "stevec", email = "steve@pingsolve.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.32",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "ebooklib>=0.18",
+    "pytest>=8.0",
+]
+
+[project.scripts]
+substack-to-epub = "substack_to_epub:main"
+
+[build-system]
+requires = ["uv_build>=0.10.10,<0.11.0"]
+build-backend = "uv_build"
