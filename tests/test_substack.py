@@ -8,7 +8,7 @@ import pytest
 from substack_to_epub.substack import SubstackClient
 
 # A stable, fully-free Substack.
-TEST_PUB_URL = "https://simonwillison.substack.com"
+TEST_PUB_URL = "https://www.noahpinion.blog"
 
 
 @pytest.fixture(scope="module")
