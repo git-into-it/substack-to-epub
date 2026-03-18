@@ -7,19 +7,13 @@ Convert a Substack publication or single post to an EPUB file. Works with free a
 ### With uv (recommended)
 
 ```bash
-uv tool install substack-to-epub
+uv tool install git+https://github.com/git-into-it/substack-to-epub
 ```
 
 Or run without installing:
 
 ```bash
-uvx substack-to-epub <url>
-```
-
-### With pip
-
-```bash
-pip install substack-to-epub
+uvx git+https://github.com/git-into-it/substack-to-epub <url>
 ```
 
 ## Usage
