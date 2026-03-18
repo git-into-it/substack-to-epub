@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 from .cli import parse_args
 from .epub import build_epub
-from .substack import AuthError, NetworkError, SubstackClient, SubstackError
+from .substack import SubstackClient, SubstackError
 
 
 def _derive_output_path(client: SubstackClient, title: str, limit: int | None) -> Path:
@@ -61,7 +61,11 @@ def main() -> None:
 
         # Title and output path
         title = args.title or _derive_title(client, posts)
-        output_path = Path(args.output) if args.output else _derive_output_path(client, title, args.limit)
+        output_path = (
+            Path(args.output)
+            if args.output
+            else _derive_output_path(client, title, args.limit)
+        )
 
         # Build EPUB
         print(f"Building EPUB: {title!r}…", file=sys.stderr)

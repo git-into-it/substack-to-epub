@@ -3,6 +3,7 @@
 These tests make real HTTP requests. Run with:
     uv run pytest tests/test_substack.py -v
 """
+
 import pytest
 
 from substack_to_epub.substack import SubstackClient
@@ -25,11 +26,17 @@ def test_is_single_post_url_true():
 
 
 def test_is_single_post_url_no_trailing_slash():
-    assert SubstackClient.is_single_post_url("https://example.substack.com/p/hello") is True
+    assert (
+        SubstackClient.is_single_post_url("https://example.substack.com/p/hello")
+        is True
+    )
 
 
 def test_is_single_post_url_archive():
-    assert SubstackClient.is_single_post_url("https://example.substack.com/archive") is False
+    assert (
+        SubstackClient.is_single_post_url("https://example.substack.com/archive")
+        is False
+    )
 
 
 @pytest.mark.network

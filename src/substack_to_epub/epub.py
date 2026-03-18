@@ -1,11 +1,10 @@
 import datetime
 import re
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from ebooklib import epub
-
 
 # Substack-specific CSS classes / identifiers that are UI chrome, not content.
 _PAYWALL_SELECTORS = [
@@ -53,7 +52,6 @@ def clean_html(raw_html: str, base_url: str) -> str:
 def post_to_xhtml(post: dict, base_url: str) -> str:
     """Return a complete XHTML document string for one post."""
     title = _escape_xml(post.get("title") or "Untitled")
-    raw_date = post.get("post_date") or post.get("publishedBylines", [{}])
     date_str = _format_date(post.get("post_date") or "")
     body_html = post.get("body_html") or ""
     content = clean_html(body_html, base_url)
@@ -106,7 +104,6 @@ def build_epub(posts: list[dict], title: str, output_path: str | Path) -> None:
                 resp = requests.get(cover_url, timeout=15)
                 if resp.ok:
                     ext = cover_url.rsplit(".", 1)[-1].split("?")[0].lower()
-                    media_type = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
                     book.set_cover(f"cover.{ext}", resp.content, create_page=True)
             except Exception:
                 pass  # cover is optional

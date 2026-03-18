@@ -49,7 +49,9 @@ class SubstackClient:
         if resp.status_code == 401:
             raise AuthError("Invalid email or password")
         if not resp.ok:
-            raise AuthError(f"Login failed with status {resp.status_code}: {resp.text[:200]}")
+            raise AuthError(
+                f"Login failed with status {resp.status_code}: {resp.text[:200]}"
+            )
 
     def set_cookie(self, value: str) -> None:
         """Inject a substack.sid cookie into the session."""

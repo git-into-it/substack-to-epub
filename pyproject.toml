@@ -22,7 +22,16 @@ substack-to-epub = "substack_to_epub:main"
 requires = ["uv_build>=0.10.10,<0.11.0"]
 build-backend = "uv_build"
 
+[dependency-groups]
+dev = ["ruff>=0.9", "pre-commit>=4.0"]
+
 [tool.pytest.ini_options]
 markers = [
     "network: marks tests that make real HTTP requests",
 ]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

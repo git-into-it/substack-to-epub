@@ -109,7 +109,8 @@ Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/).
 ```bash
 git clone https://github.com/stevec/substack-to-epub
 cd substack-to-epub
-uv sync
+uv sync --all-groups
+uv run pre-commit install
 uv run substack-to-epub --help
 ```
 

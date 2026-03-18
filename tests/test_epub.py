@@ -1,9 +1,7 @@
 import zipfile
 from pathlib import Path
 
-import pytest
-
-from substack_to_epub.epub import build_epub, clean_html, post_to_xhtml
+from substack_to_epub.epub import build_epub, clean_html
 
 BASE_URL = "https://example.substack.com"
 

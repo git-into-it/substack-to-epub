@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 
 def parse_args(argv=None) -> argparse.Namespace:
@@ -16,7 +15,11 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--cookie", help="substack.sid cookie value (alternative to email/password)"
     )
-    parser.add_argument("--output", "-o", help="Output filename (default: derived from publication name)")
+    parser.add_argument(
+        "--output",
+        "-o",
+        help="Output filename (default: derived from publication name)",
+    )
     parser.add_argument(
         "--limit",
         type=int,

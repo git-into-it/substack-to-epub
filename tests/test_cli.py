@@ -15,11 +15,15 @@ def test_valid_url_only():
 
 
 def test_valid_with_email_and_password():
-    args = parse_args([
-        "https://example.substack.com",
-        "--email", "user@example.com",
-        "--password", "secret",
-    ])
+    args = parse_args(
+        [
+            "https://example.substack.com",
+            "--email",
+            "user@example.com",
+            "--password",
+            "secret",
+        ]
+    )
     assert args.email == "user@example.com"
     assert args.password == "secret"
 
@@ -56,12 +60,17 @@ def test_password_without_email_raises(capsys):
 
 def test_cookie_and_email_raises(capsys):
     with pytest.raises(SystemExit):
-        parse_args([
-            "https://example.substack.com",
-            "--cookie", "abc",
-            "--email", "user@example.com",
-            "--password", "secret",
-        ])
+        parse_args(
+            [
+                "https://example.substack.com",
+                "--cookie",
+                "abc",
+                "--email",
+                "user@example.com",
+                "--password",
+                "secret",
+            ]
+        )
 
 
 def test_limit_zero_raises(capsys):
