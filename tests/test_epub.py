@@ -1,5 +1,6 @@
 import zipfile
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from substack_to_epub.epub import build_epub, clean_html
 
@@ -124,3 +125,94 @@ def test_build_epub_string_path(tmp_path):
     output = str(tmp_path / "str_path.epub")
     build_epub([SAMPLE_POST], "Test", output)
     assert Path(output).exists()
+
+
+# ------------------------------------------------------------------
+# Image embedding
+# ------------------------------------------------------------------
+
+IMAGE_URL = "https://example.substack.com/images/photo.jpg"
+IMAGE_BYTES = b"\xff\xd8\xff"  # minimal JPEG magic bytes
+
+POST_WITH_IMAGE = {
+    "title": "Post With Image",
+    "slug": "post-with-image",
+    "post_date": "2024-03-01T10:00:00Z",
+    "body_html": f'<p>Look at this.</p><img src="{IMAGE_URL}"/>',
+    "canonical_url": BASE_URL + "/p/post-with-image",
+}
+
+
+def _mock_get(url, timeout=15):
+    resp = MagicMock()
+    resp.ok = True
+    resp.content = IMAGE_BYTES
+    resp.headers = {"Content-Type": "image/jpeg"}
+    return resp
+
+
+def test_build_epub_embeds_images(tmp_path):
+    output = tmp_path / "images.epub"
+    with patch("substack_to_epub.epub.requests.get", side_effect=_mock_get):
+        build_epub([POST_WITH_IMAGE], "Image Book", output)
+
+    with zipfile.ZipFile(output) as zf:
+        names = zf.namelist()
+
+    image_files = [n for n in names if "images/img-" in n]
+    assert image_files, f"No embedded image found in EPUB; files: {names}"
+
+
+def test_build_epub_image_src_rewritten(tmp_path):
+    output = tmp_path / "images.epub"
+    with patch("substack_to_epub.epub.requests.get", side_effect=_mock_get):
+        build_epub([POST_WITH_IMAGE], "Image Book", output)
+
+    with zipfile.ZipFile(output) as zf:
+        xhtml_names = [n for n in zf.namelist() if n.endswith("post-with-image.xhtml")]
+        assert xhtml_names
+        xhtml_content = zf.read(xhtml_names[0]).decode("utf-8")
+
+    assert IMAGE_URL not in xhtml_content, "External image URL should be replaced"
+    assert "images/img-" in xhtml_content, "Local image path should appear in XHTML"
+
+
+def test_build_epub_image_deduplication(tmp_path):
+    """Same image URL in two posts is downloaded only once."""
+    output = tmp_path / "dedup.epub"
+    post1 = {**POST_WITH_IMAGE, "slug": "post-one"}
+    post2 = {**POST_WITH_IMAGE, "slug": "post-two"}
+
+    call_count = 0
+
+    def counting_get(url, timeout=15):
+        nonlocal call_count
+        call_count += 1
+        return _mock_get(url, timeout)
+
+    with patch("substack_to_epub.epub.requests.get", side_effect=counting_get):
+        build_epub([post1, post2], "Dedup Book", output)
+
+    # One call per unique image URL (cover fetch skipped — no cover_image key)
+    assert call_count == 1, f"Expected 1 download, got {call_count}"
+
+
+def test_build_epub_failed_image_download_leaves_external_url(tmp_path):
+    """If image download fails, the external URL is preserved (graceful degradation)."""
+    output = tmp_path / "fail.epub"
+
+    def failing_get(url, timeout=15):
+        resp = MagicMock()
+        resp.ok = False
+        return resp
+
+    with patch("substack_to_epub.epub.requests.get", side_effect=failing_get):
+        build_epub([POST_WITH_IMAGE], "Fail Book", output)
+
+    with zipfile.ZipFile(output) as zf:
+        xhtml_names = [n for n in zf.namelist() if n.endswith("post-with-image.xhtml")]
+        xhtml_content = zf.read(xhtml_names[0]).decode("utf-8")
+
+    assert IMAGE_URL in xhtml_content, (
+        "External URL should be preserved on download failure"
+    )
