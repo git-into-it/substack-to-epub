@@ -38,10 +38,11 @@ def test_clean_html_removes_paywall_div():
     assert "Free part" in result
 
 
-def test_clean_html_fixes_relative_urls():
+def test_clean_html_removes_anchor_tags():
     html = '<a href="/p/my-post">link</a>'
     result = clean_html(html, BASE_URL)
-    assert f"{BASE_URL}/p/my-post" in result
+    assert "<a" not in result
+    assert "link" in result
 
 
 def test_clean_html_fixes_relative_img_src():
@@ -50,10 +51,11 @@ def test_clean_html_fixes_relative_img_src():
     assert f"{BASE_URL}/images/photo.jpg" in result
 
 
-def test_clean_html_keeps_absolute_urls():
-    html = '<a href="https://other.com/page">link</a>'
+def test_clean_html_removes_anchor_keeps_text():
+    html = '<a href="https://other.com/page">click here</a>'
     result = clean_html(html, BASE_URL)
-    assert "https://other.com/page" in result
+    assert "<a" not in result
+    assert "click here" in result
 
 
 def test_clean_html_empty_string():

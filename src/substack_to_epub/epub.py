@@ -39,11 +39,21 @@ def clean_html(raw_html: str, base_url: str) -> str:
         for el in soup.select(selector):
             el.decompose()
 
-    # Fix relative URLs on <a href> and <img src>
-    for tag in soup.find_all("a", href=True):
-        tag["href"] = urljoin(base_url, tag["href"])
+    # Fix relative URLs on <img src>
     for tag in soup.find_all("img", src=True):
         tag["src"] = urljoin(base_url, tag["src"])
+
+    # Unwrap image containers: replace <figure>/<picture> with their <img> child
+    for tag in soup.find_all(["figure", "picture"]):
+        img = tag.find("img")
+        if img:
+            tag.replace_with(img)
+        else:
+            tag.decompose()
+
+    # Remove anchor tags, keeping their inner content
+    for tag in soup.find_all("a"):
+        tag.unwrap()
 
     # Return the inner content (lxml wraps in <html><body>)
     body = soup.find("body")
